@@ -2,8 +2,8 @@ class Kapacitor < Formula
   desc "Open source time series data processor"
   homepage "https://github.com/influxdata/kapacitor"
   url "https://github.com/influxdata/kapacitor.git",
-      tag:      "v1.5.8",
-      revision: "873d93b7377bf1c7bfbcd508e4ea6a6213997aff"
+      tag:      "v1.6.1",
+      revision: "0eaf1848f412d555f57ed9724325e934ec4838e7"
   license "MIT"
   head "https://github.com/influxdata/kapacitor.git"
 
@@ -13,34 +13,47 @@ class Kapacitor < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "53a4ffb90955abd638c370b605249e59cebf063a9bab2a91f8cd78f5ae81542c"
-    sha256 cellar: :any_skip_relocation, big_sur:       "a1381a3e165a2aeaac47206ab1de2898de021b1e6508253fdc04d57afe599d6a"
-    sha256 cellar: :any_skip_relocation, catalina:      "6e5902e6a5524d6062185bc20eaedaccf68d48ff9a12e374fce7d7666e0b8ad7"
-    sha256 cellar: :any_skip_relocation, mojave:        "786f624493214d9b7135f4e01753cab017eb5db0f24a0629319f6c85101755f0"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "1818dbfa03b46c14fd6319ddc58181d6bf8219b1e6984af4b1776966b3b5344b"
+    sha256 cellar: :any_skip_relocation, big_sur:       "03e6ed1a8fb1b808067cf600c40a6c417287769710a3b1052cd155a4bf2aa91f"
+    sha256 cellar: :any_skip_relocation, catalina:      "b19d21c40470c2244484cd7bb1e59b0fa67046d2e8af2bdf02e97880896cdea7"
+    sha256 cellar: :any_skip_relocation, mojave:        "26af1dc72d59fda49a071aa3c61fb8376bb7a13a56ac6a674709ac210dba90ec"
   end
 
   depends_on "go" => :build
+  depends_on "rust" => :build
+
+  # NOTE: The version here is specified in the go.mod of kapacitor.
+  # If you're upgrading to a newer kapacitor version, check to see if this needs upgraded too.
+  resource "pkg-config-wrapper" do
+    url "https://github.com/influxdata/pkg-config/archive/v0.2.7.tar.gz"
+    sha256 "9bfe2c06b09fe7f3274f4ff8da1d87c9102640285bb38dad9a8c26dd5b9fe5af"
+  end
 
   def install
-    ENV["GOPATH"] = buildpath
-    kapacitor_path = buildpath/"src/github.com/influxdata/kapacitor"
-    kapacitor_path.install Dir["*"]
-
-    cd kapacitor_path do
-      system "go", "install",
-             "-ldflags", "-X main.version=#{version} -X main.commit=#{Utils.git_head}",
-             "./cmd/..."
+    resource("pkg-config-wrapper").stage do
+      system "go", "build", *std_go_args, "-o", buildpath/"bootstrap/pkg-config"
     end
+    ENV.prepend_path "PATH", buildpath/"bootstrap"
 
-    inreplace kapacitor_path/"etc/kapacitor/kapacitor.conf" do |s|
+    ldflags = %W[
+      -s
+      -w
+      -X main.version=#{version}
+      -X main.commit=#{Utils.git_head}
+    ]
+
+    system "go", "build", *std_go_args(ldflags: ldflags.join(" ")), "./cmd/kapacitor"
+    system "go", "build", *std_go_args(ldflags: ldflags.join(" ")), "-o", bin/"kapacitord", "./cmd/kapacitord"
+
+    inreplace "etc/kapacitor/kapacitor.conf" do |s|
       s.gsub! "/var/lib/kapacitor", "#{var}/kapacitor"
       s.gsub! "/var/log/kapacitor", "#{var}/log"
     end
 
-    bin.install "bin/kapacitord"
-    bin.install "bin/kapacitor"
-    etc.install kapacitor_path/"etc/kapacitor/kapacitor.conf" => "kapacitor.conf"
+    etc.install "etc/kapacitor/kapacitor.conf" => "kapacitor.conf"
+  end
 
+  def post_install
     (var/"kapacitor/replay").mkpath
     (var/"kapacitor/tasks").mkpath
   end
@@ -94,7 +107,7 @@ class Kapacitor < Formula
       pid = fork do
         exec "#{bin}/kapacitord -config #{testpath}/config.toml"
       end
-      sleep 2
+      sleep 20
       shell_output("#{bin}/kapacitor list tasks")
     ensure
       Process.kill("SIGINT", pid)

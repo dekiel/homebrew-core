@@ -2,21 +2,22 @@ class Php < Formula
   desc "General-purpose scripting language"
   homepage "https://www.php.net/"
   # Should only be updated if the new version is announced on the homepage, https://www.php.net/
-  url "https://www.php.net/distributions/php-8.0.3.tar.xz"
-  mirror "https://fossies.org/linux/www/php-8.0.3.tar.xz"
-  sha256 "c9816aa9745a9695672951eaff3a35ca5eddcb9cacf87a4f04b9fb1169010251"
+  url "https://www.php.net/distributions/php-8.0.10.tar.xz"
+  mirror "https://fossies.org/linux/www/php-8.0.10.tar.xz"
+  sha256 "66dc4d1bc86d9c1bc255b51b79d337ed1a7a035cf71230daabbf9a4ca35795eb"
   license "PHP-3.01"
 
   livecheck do
-    url "https://www.php.net/releases/feed.php"
-    regex(/PHP (\d+(?:\.\d+)+) /i)
+    url "https://www.php.net/downloads"
+    regex(/href=.*?php[._-]v?(\d+(?:\.\d+)+)\.t/i)
   end
 
   bottle do
-    sha256 arm64_big_sur: "797d42b8a41ada3454fd840fc69f1df3cb77937962e348609070696c80da63ba"
-    sha256 big_sur:       "1ac78ee799b207f47fa986852ccc780d9ab4978cd18bf4b583c044f7298b5689"
-    sha256 catalina:      "1293475830ef0709d10403ffbcffb978f08692f6861440c29d74358373f6c71a"
-    sha256 mojave:        "e32fad08d7908e8a725f2ef52c8e562d3bb75d3547b538ee29842443d31cd5db"
+    sha256 arm64_big_sur: "27576c91e718f0a14661eaf5d2825728f75d4ddf40579eb635286b1e6e90139e"
+    sha256 big_sur:       "663433b2ede05cf5017c1b81ccb3d44602f2c23b63a64da85bda64386bc37c8c"
+    sha256 catalina:      "81f26960c0602ebcac8a61c0ab83c5e611d97f8ee5ad3f773826e6edd2bc24d7"
+    sha256 mojave:        "4bb748d4600f2d4a544eeeb5701216816cd5a3e86f17c816ca25990234e43a72"
+    sha256 x86_64_linux:  "4ec65672f4a4579076afdec1d7adaad97313a92ea5fefb51680c38079cd4117a"
   end
 
   head do
@@ -321,31 +322,12 @@ class Php < Formula
   end
 
   plist_options manual: "php-fpm"
-
-  def plist
-    <<~EOS
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-        <dict>
-          <key>KeepAlive</key>
-          <true/>
-          <key>Label</key>
-          <string>#{plist_name}</string>
-          <key>ProgramArguments</key>
-          <array>
-            <string>#{opt_sbin}/php-fpm</string>
-            <string>--nodaemonize</string>
-          </array>
-          <key>RunAtLoad</key>
-          <true/>
-          <key>WorkingDirectory</key>
-          <string>#{var}</string>
-          <key>StandardErrorPath</key>
-          <string>#{var}/log/php-fpm.log</string>
-        </dict>
-      </plist>
-    EOS
+  service do
+    run [opt_sbin/"php-fpm", "--nodaemonize"]
+    run_type :immediate
+    keep_alive true
+    error_log_path var/"log/php-fpm.log"
+    working_dir var
   end
 
   test do
@@ -362,7 +344,7 @@ class Php < Formula
     system "#{bin}/phpdbg", "-V"
     system "#{bin}/php-cgi", "-m"
     # Prevent SNMP extension to be added
-    assert_no_match(/^snmp$/, shell_output("#{bin}/php -m"),
+    refute_match(/^snmp$/, shell_output("#{bin}/php -m"),
       "SNMP extension doesn't work reliably with Homebrew on High Sierra")
     begin
       port = free_port

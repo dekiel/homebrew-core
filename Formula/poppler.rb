@@ -1,11 +1,10 @@
 class Poppler < Formula
   desc "PDF rendering library (based on the xpdf-3.0 code base)"
   homepage "https://poppler.freedesktop.org/"
-  url "https://poppler.freedesktop.org/poppler-21.03.0.tar.xz"
-  sha256 "fd51ead4aac1d2f4684fa6e7b0ec06f0233ed21667e720a4e817e4455dd63d27"
+  url "https://poppler.freedesktop.org/poppler-21.08.0.tar.xz"
+  sha256 "e9cf5dc5964bce4bb0264d1c4f8122706c910588b421cfc30abc97d6b23e602d"
   license "GPL-2.0-only"
-  revision 1
-  head "https://gitlab.freedesktop.org/poppler/poppler.git"
+  head "https://gitlab.freedesktop.org/poppler/poppler.git", branch: "master"
 
   livecheck do
     url :homepage
@@ -13,10 +12,10 @@ class Poppler < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "90b6ef0d795977a282db75c4a5caed550d16f88ef41d6e290b3ede2d10e25d0e"
-    sha256 big_sur:       "437360eb64c1bbbe8b403f9a89d8bbbb46daeb5c9e3e94315efbc74605c0eac0"
-    sha256 catalina:      "551f5398999e8de473adaf26e9cba9a07871cfe3f488778cae3cdaffd25ba7db"
-    sha256 mojave:        "d672b3810ad4f8ef2fef83ac3ab9b28e6ea9487090a0f5796579c90aba5ee156"
+    sha256 arm64_big_sur: "4592c1f6c567a0a215ee65d5c7cfdac73467ba735069e47f565297eafac41e36"
+    sha256 big_sur:       "c858c4d7c4f31b1a5a80ffdaa9307070eaa5bfb3b3b6877f75bc35c628d5d94d"
+    sha256 catalina:      "af05e6a724134f9069503f347b19774ad78a0244afe9a01370d24e73087de05c"
+    sha256 mojave:        "e8ceee29d278124f4c8fc015f772088ab631bb7b7bc2415e39515daf03b60463"
   end
 
   depends_on "cmake" => :build
@@ -33,7 +32,7 @@ class Poppler < Formula
   depends_on "little-cms2"
   depends_on "nss"
   depends_on "openjpeg"
-  depends_on "qt@5"
+  depends_on "qt"
 
   uses_from_macos "gperf" => :build
   uses_from_macos "curl"
@@ -51,10 +50,11 @@ class Poppler < Formula
 
     args = std_cmake_args + %w[
       -DBUILD_GTK_TESTS=OFF
+      -DENABLE_BOOST=OFF
       -DENABLE_CMS=lcms2
       -DENABLE_GLIB=ON
-      -DENABLE_QT5=ON
-      -DENABLE_QT6=OFF
+      -DENABLE_QT5=OFF
+      -DENABLE_QT6=ON
       -DENABLE_UNSTABLE_API_ABI_HEADERS=ON
       -DWITH_GObjectIntrospection=ON
     ]
@@ -71,16 +71,18 @@ class Poppler < Formula
       system "make", "install", "prefix=#{prefix}"
     end
 
-    libpoppler = (lib/"libpoppler.dylib").readlink
-    [
-      "#{lib}/libpoppler-cpp.dylib",
-      "#{lib}/libpoppler-glib.dylib",
-      "#{lib}/libpoppler-qt5.dylib",
-      *Dir["#{bin}/*"],
-    ].each do |f|
-      macho = MachO.open(f)
-      macho.change_dylib("@rpath/#{libpoppler}", "#{opt_lib}/#{libpoppler}")
-      macho.write!
+    on_macos do
+      libpoppler = (lib/"libpoppler.dylib").readlink
+      [
+        "#{lib}/libpoppler-cpp.dylib",
+        "#{lib}/libpoppler-glib.dylib",
+        "#{lib}/libpoppler-qt#{Formula["qt"].version.major}.dylib",
+        *Dir["#{bin}/*"],
+      ].each do |f|
+        macho = MachO.open(f)
+        macho.change_dylib("@rpath/#{libpoppler}", "#{opt_lib}/#{libpoppler}")
+        macho.write!
+      end
     end
   end
 

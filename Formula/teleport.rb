@@ -1,10 +1,10 @@
 class Teleport < Formula
   desc "Modern SSH server for teams managing distributed infrastructure"
   homepage "https://gravitational.com/teleport"
-  url "https://github.com/gravitational/teleport/archive/v6.0.1.tar.gz"
-  sha256 "2cfd723902ecd60cad079e6f8a72ad73739b8d3c755019aaab69c387bf7feeab"
+  url "https://github.com/gravitational/teleport/archive/v7.1.0.tar.gz"
+  sha256 "0b716eb1cd02b1d41c017954c5a173ab5372ab4698276faab6c45e3f2aedaeae"
   license "Apache-2.0"
-  head "https://github.com/gravitational/teleport.git"
+  head "https://github.com/gravitational/teleport.git", branch: "master"
 
   # We check the Git tags instead of using the `GithubLatest` strategy, as the
   # "latest" version can be incorrect. As of writing, two major versions of
@@ -12,15 +12,15 @@ class Teleport < Formula
   # to a release from the older major version.
   livecheck do
     url :stable
-    strategy :git
     regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "faca3c70b1157c916bd519060e362fda1283a52b587c2f18416651c28806118e"
-    sha256 cellar: :any_skip_relocation, big_sur:       "eb076944ee212726ae9272b09d2f0cba0dcda8c2ffc0dbf09ade8c07d3b7c2b5"
-    sha256 cellar: :any_skip_relocation, catalina:      "c1ab38f830f0f616a1b3af15effb154e69ef81bff4b28387beedace052dde93f"
-    sha256 cellar: :any_skip_relocation, mojave:        "48f7b61ecc4146b3a44744a8097ba9efc8a6675ed6ab9a3e35e01e961ddefabb"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "ce54e05c99feceedb10e92e20be56e4d54c3800d7814a8dec04843219bbaddcf"
+    sha256 cellar: :any_skip_relocation, big_sur:       "0d5f384bc8b6aae44448810509948bd0c16015e9a7c3c8d075db26b04f134967"
+    sha256 cellar: :any_skip_relocation, catalina:      "b1437b41e39c3de655941fdcadf96fdbed05ad15ca19012baab60f68a8599269"
+    sha256 cellar: :any_skip_relocation, mojave:        "1c47d87520dba62e93784e125ccbcc0fa75dc9c990fcd416e7209d4875797b5d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "50f62a19a3072a427bc70409754be476f2b34e797b2dace0bcaf2f9e732151a4"
   end
 
   depends_on "go" => :build
@@ -33,8 +33,8 @@ class Teleport < Formula
 
   # Keep this in sync with https://github.com/gravitational/teleport/tree/v#{version}
   resource "webassets" do
-    url "https://github.com/gravitational/webassets/archive/228008d85ec49ed98385324bb4b5eb98bcad8bd7.tar.gz"
-    sha256 "3269e7519c617dea2ca7b776cb74ee16344e4b80671e4baf4c8213691d914f99"
+    url "https://github.com/gravitational/webassets/archive/07493a5e78677de448b0e35bd72bf1dc6498b5ea.tar.gz"
+    sha256 "2074ee7e50720f20ff1b4da923434c05f6e1664e13694adde9522bf9ab09e0fd"
   end
 
   def install
@@ -50,15 +50,15 @@ class Teleport < Formula
       .gsub("/var/lib/teleport", testpath)
       .gsub("/var/run", testpath)
       .gsub(/https_(.*)/, "")
-    begin
-      pid = spawn("#{bin}/teleport start -c #{testpath}/config.yml")
-      sleep 5
-      system "/usr/bin/curl", "--insecure", "https://localhost:3080"
-      system "/usr/bin/nc", "-z", "localhost", "3022"
-      system "/usr/bin/nc", "-z", "localhost", "3023"
-      system "/usr/bin/nc", "-z", "localhost", "3025"
-    ensure
-      Process.kill(9, pid)
+
+    fork do
+      exec "#{bin}/teleport start -c #{testpath}/config.yml --debug"
     end
+
+    sleep 10
+    system "curl", "--insecure", "https://localhost:3080"
+    system "nc", "-z", "localhost", "3022"
+    system "nc", "-z", "localhost", "3023"
+    system "nc", "-z", "localhost", "3025"
   end
 end

@@ -1,20 +1,21 @@
 class Immudb < Formula
   desc "Lightweight, high-speed immutable database"
   homepage "https://www.codenotary.io"
-  url "https://github.com/codenotary/immudb/archive/v0.9.1.tar.gz"
-  sha256 "c1decf81b4a397641ce5280bcb00984c0582901773117e7819fa2753502dc528"
+  url "https://github.com/codenotary/immudb/archive/v1.0.5.tar.gz"
+  sha256 "d30bf02c111b8a4f99475ea72339f1f04e3df95eb5ce53103e0a26dcdfe1f24f"
   license "Apache-2.0"
 
   livecheck do
     url :stable
-    regex(/^v?(\d+(?:\.\d+)+)$/i)
+    strategy :github_latest
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "8d7295fb6bc0fb6689146d454dfa9ad7856b9a388746a48bdbfdc1fa17dc9c97"
-    sha256 cellar: :any_skip_relocation, big_sur:       "d1b67665e3b063f375151def8fc27e652761c915573cb1b5c121db3d093ba38a"
-    sha256 cellar: :any_skip_relocation, catalina:      "21b6ea017ac562e0aa3c5169449c9802e8671cc0de7d5a63c045fd6254c7d1d5"
-    sha256 cellar: :any_skip_relocation, mojave:        "5362276aa69423fb456d37df1da348bb388dd9898ae63a8d660f7ca870d65fd9"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "b1948979691ff59c3451a8b4059f8ee46260ceb495bd6160457addf1ac488d2b"
+    sha256 cellar: :any_skip_relocation, big_sur:       "a790db21667de3c27adf5907d0a6791862cf6d25c4534d71b48057904227e1f6"
+    sha256 cellar: :any_skip_relocation, catalina:      "8ed8ca363acf0d35b43a274908989e1605c3d21dc9ee956e4dae86fdb049b2d8"
+    sha256 cellar: :any_skip_relocation, mojave:        "5bf7ea3fbf0681e276ddee03ce356417f3d3b566c569721343bc500ec3643156"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "572f21705837f49ea3bf2bbd41b94b3ef4b0ef5cc49d0c0a21bd9558dd4a8e13"
   end
 
   depends_on "go" => :build
@@ -25,16 +26,17 @@ class Immudb < Formula
   end
 
   test do
-    immudb_port = free_port
+    port = free_port
 
     fork do
-      exec bin/"immudb", "--auth=false", "-p", immudb_port.to_s
+      exec bin/"immudb", "--auth=true", "-p", port.to_s
     end
     sleep 3
 
-    system bin/"immuclient", "safeset", "hello", "world", "-p", immudb_port.to_s
-    assert_match "world", shell_output("#{bin}/immuclient safeget hello -p #{immudb_port}")
+    system bin/"immuclient", "login", "--tokenfile=./tkn", "--username=immudb", "--password=immudb", "-p", port.to_s
+    system bin/"immuclient", "--tokenfile=./tkn", "safeset", "hello", "world", "-p", port.to_s
+    assert_match "world", shell_output("#{bin}/immuclient --tokenfile=./tkn safeget hello -p #{port}")
 
-    assert_match "OK", shell_output("#{bin}/immuadmin status -p #{immudb_port}")
+    assert_match "OK", shell_output("#{bin}/immuadmin status -p #{port}")
   end
 end

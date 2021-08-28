@@ -1,10 +1,10 @@
 class Xmrig < Formula
   desc "Monero (XMR) CPU miner"
   homepage "https://github.com/xmrig/xmrig"
-  url "https://github.com/xmrig/xmrig/archive/v6.10.0.tar.gz"
-  sha256 "6752d2ee2d3eff8f313e7440053ea55e30925ce9665196701d4557a27707c9b7"
+  url "https://github.com/xmrig/xmrig/archive/v6.14.1.tar.gz"
+  sha256 "5342632664a01efc7d512ce404f580d9ee380899afb144b4afc05c43e76cf446"
   license "GPL-3.0-or-later"
-  head "https://github.com/xmrig/xmrig.git"
+  head "https://github.com/xmrig/xmrig.git", branch: "master"
 
   livecheck do
     url :stable
@@ -12,10 +12,11 @@ class Xmrig < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "62a635f40497724d76ca2492cf022234569da38f11ecd880b2ed1a51de524117"
-    sha256 big_sur:       "71275e53a661c12af7c9719d0cd8d2c9bb6ef731605505892070ef130dba7207"
-    sha256 catalina:      "efa0c0860d62be5d821d1fbc0cbbbb7358bdbead68d2f25a23a80a4530d078f1"
-    sha256 mojave:        "d27036e0417739b55f658060cf8a3d4cb94a6ab655fc7f2027b315bd61d36552"
+    sha256                               arm64_big_sur: "f9f22c6ec51688ab08c4d5781009d014df2abb3213593c8c5d346374e06fe9cb"
+    sha256                               big_sur:       "64a8acf08048c855bfdf22dfa51512617280407617f28e8941be5712324a76c2"
+    sha256                               catalina:      "59ad44dbbf217c0b4430fb803c7226dcb2f53b14295dcf2e62de25728b75c4dc"
+    sha256                               mojave:        "fe36bc7a8b724b2c94b565093d1560095846cff43d429b41a1bdd147df7e72d0"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "9fbd8ed53e878e2a573beda40672d4ccd9675740551b8c508a87fe979492eb52"
   end
 
   depends_on "cmake" => :build

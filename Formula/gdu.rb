@@ -1,15 +1,16 @@
 class Gdu < Formula
   desc "Disk usage analyzer with console interface written in Go"
   homepage "https://github.com/dundee/gdu"
-  url "https://github.com/dundee/gdu/archive/v4.8.0.tar.gz"
-  sha256 "6f6bbffbce4b32c128fe35da50f59fffc3332c6b7fb11d16f06ab2a9cf167cee"
+  url "https://github.com/dundee/gdu/archive/v5.6.2.tar.gz"
+  sha256 "7976d81c3fc244e9d80a6f1d1b3fbea013dbc7a8bee5df08456eb99e00fb292f"
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "98fd1f752a783237c9987a011c4296bd49d60f0e9ca4c01fa54f4e17e6a01ff1"
-    sha256 cellar: :any_skip_relocation, big_sur:       "07c3aa2b6500b8d7548f365d509e89c183636675cf0974f2d1482d40654ca024"
-    sha256 cellar: :any_skip_relocation, catalina:      "d9bf872ee85e2b00fc2fdccdf24c47a5095d3e93b7613a0c233dddbe55a56ff3"
-    sha256 cellar: :any_skip_relocation, mojave:        "d32bb6a39405edae8e243350622c42af5d9d99112790377e30238f0978c1dd0e"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "5d91d36d764a608ebf994a623e716c5d55a31b507424028d810e40c4c18ff0ee"
+    sha256 cellar: :any_skip_relocation, big_sur:       "780421d05f8b84d4d7bc8734f2760e264d213eb3988b57daa3832df9c9e7bd5b"
+    sha256 cellar: :any_skip_relocation, catalina:      "b28cd7f66c19e09244d37a68c79277b05e5c5af333066c47dc6b39de085db2af"
+    sha256 cellar: :any_skip_relocation, mojave:        "72c0898eb316be7a9b839fc33438ff6c50d240f2fd1032468df91b3842301416"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "116c79a59061a141b60def54121021bc704c09a7e04c46e6ae763e4c4fa006d3"
   end
 
   depends_on "go" => :build
@@ -17,17 +18,17 @@ class Gdu < Formula
   conflicts_with "coreutils", because: "both install `gdu` binaries"
 
   def install
-    time = Time.new
     user = Utils.safe_popen_read("id", "-u", "-n")
+    major = version.major
 
     ldflags = %W[
       -s -w
-      -X 'github.com/dundee/gdu/v4/build.Version=v#{version}'
-      -X 'github.com/dundee/gdu/v4/build.Time=#{time}'
-      -X 'github.com/dundee/gdu/v4/build.User=#{user}'
-    ]
+      -X "github.com/dundee/gdu/v#{major}/build.Version=v#{version}"
+      -X "github.com/dundee/gdu/v#{major}/build.Time=#{time}"
+      -X "github.com/dundee/gdu/v#{major}/build.User=#{user}"
+    ].join(" ")
 
-    system "go", "build", *std_go_args, "-ldflags", ldflags.join(" ")
+    system "go", "build", *std_go_args(ldflags: ldflags), "./cmd/gdu"
   end
 
   test do

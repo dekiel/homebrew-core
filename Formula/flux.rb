@@ -2,8 +2,8 @@ class Flux < Formula
   desc "Lightweight scripting language for querying databases"
   homepage "https://www.influxdata.com/products/flux/"
   url "https://github.com/influxdata/flux.git",
-      tag:      "v0.108.1",
-      revision: "0546f24e73a00d134940d1a002c5f271e2e05e26"
+      tag:      "v0.126.0",
+      revision: "5daaedac25dfa11cf577e9a662e59e5c721f80ed"
   license "MIT"
   head "https://github.com/influxdata/flux.git"
 
@@ -13,14 +13,27 @@ class Flux < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "f83a206deb0a1efb43cb8c4173d4d0d6aab011586ae84e50f946d201cbfb4271"
-    sha256 cellar: :any,                 big_sur:       "dd546db9f9f426a965af3c7dec650b4ddd9cfcb55924e6dc86a749ce204bb2ca"
-    sha256 cellar: :any,                 catalina:      "b95c6a0e9bee1dc30586a40fdee3e8069dd9ed0ab4c168e6d56678c102d4f3fa"
-    sha256 cellar: :any,                 mojave:        "aee2ed1336b8105009189e9e15b28aed6f6e79a593d8c7d00899a15709d9f7d2"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "8058fe7c0a930c5a0f93ab1a1d3c3524b1c7e06edc5a7f4f26ca1c20e2a0274d"
+    sha256 cellar: :any,                 big_sur:       "d0fa7eff1f68a3bf56b4e4d933689eca65e2b6dbcf56ee0f459141ccf0a67ad3"
+    sha256 cellar: :any,                 catalina:      "57280d055bf98d6f8dc7b5ad96582dbe550e6c68eb8f672345db1910f6b87036"
+    sha256 cellar: :any,                 mojave:        "db623af5b425e866861c679124c096827c7ca93110dfe4509f3debc7aea82e8b"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "51a683af64d00696c61363559f5244c294f3db73982921e2bf8c30fcd7f8d655"
   end
 
   depends_on "go" => :build
   depends_on "rust" => :build
+
+  on_linux do
+    depends_on "pkg-config" => :build
+  end
+
+  # Support go 1.17, remove when upstream patch is merged/released
+  # https://github.com/influxdata/flux/pull/3982
+  patch do
+    url "https://github.com/influxdata/flux/commit/233c875bcb7d071d47149b0730d1cb5f15eb6a5a.patch?full_index=1"
+    sha256 "fadb3ee0dc5efec615b6ffc4338f9a0947d42b58406b393587754fab0196ca62"
+  end
 
   def install
     system "make", "build"

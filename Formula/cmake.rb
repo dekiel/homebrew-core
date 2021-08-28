@@ -1,10 +1,10 @@
 class Cmake < Formula
   desc "Cross-platform make"
   homepage "https://www.cmake.org/"
-  url "https://github.com/Kitware/CMake/releases/download/v3.19.6/cmake-3.19.6.tar.gz"
-  sha256 "ec87ab67c45f47c4285f204280c5cde48e1c920cfcfed1555b27fb3b1a1d20ba"
+  url "https://github.com/Kitware/CMake/releases/download/v3.21.2/cmake-3.21.2.tar.gz"
+  sha256 "94275e0b61c84bb42710f5320a23c6dcb2c6ee032ae7d2a616f53f68b3d21659"
   license "BSD-3-Clause"
-  head "https://gitlab.kitware.com/cmake/cmake.git"
+  head "https://gitlab.kitware.com/cmake/cmake.git", branch: "master"
 
   # The "latest" release on GitHub has been an unstable version before, so we
   # check the Git tags instead.
@@ -14,10 +14,11 @@ class Cmake < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "dc2b663e16d20465541b78ac5b780114a8f7867d34c0c5712256a18cb32c8b4a"
-    sha256 cellar: :any_skip_relocation, big_sur:       "2b57a88a40946e2340fdec37572b8aad7cea22b4c92459e92359a83fd66d6455"
-    sha256 cellar: :any_skip_relocation, catalina:      "1ae520ac59a80a7f3dda92ea33ec447ae22047b07eb69197d69da0c9f0ae6083"
-    sha256 cellar: :any_skip_relocation, mojave:        "989874119fc4876068106b5dd7948eac4144a11a2ec6712acb8404bcdd2cf3ab"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "8c0a200641e3737b09d61f20850d2dfe6379533cbdefcd6c512bd8e7c1d20872"
+    sha256 cellar: :any_skip_relocation, big_sur:       "dbece5192774308bf40ee7df06fdd4bba9ee6671e4e2e740072ec04cb9bef0c2"
+    sha256 cellar: :any_skip_relocation, catalina:      "a039c944e143dd97b05b87759d78cc491bc294336798ff4e141feec878303200"
+    sha256 cellar: :any_skip_relocation, mojave:        "878c2ea16ed5b0adefb421f62f22036179c340854a33d2b6a340c0c3f35e7932"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "77dea47f34b872ebab95f095f1347e28ece1931c5d27f1295ad09e3295e5e014"
   end
 
   depends_on "sphinx-doc" => :build
@@ -55,9 +56,14 @@ class Cmake < Formula
     end
 
     system "./bootstrap", *args, "--", *std_cmake_args,
-                                       "-DCMake_INSTALL_EMACS_DIR=#{elisp}"
+                                       "-DCMake_INSTALL_EMACS_DIR=#{elisp}",
+                                       "-DCMake_BUILD_LTO=ON"
     system "make"
     system "make", "install"
+
+    # Remove deprecated and unusable binary
+    # https://gitlab.kitware.com/cmake/cmake/-/issues/20235
+    (pkgshare/"Modules/Internal/CPack/CPack.OSXScriptLauncher.in").unlink
   end
 
   test do

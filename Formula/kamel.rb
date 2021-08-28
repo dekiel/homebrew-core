@@ -2,8 +2,8 @@ class Kamel < Formula
   desc "Apache Camel K CLI"
   homepage "https://camel.apache.org/"
   url "https://github.com/apache/camel-k.git",
-      tag:      "v1.3.1",
-      revision: "b705f57d2503505388e40931a8c97ad50fc2d346"
+      tag:      "v1.5.0",
+      revision: "9355c0808f5368e5c70bd03535ddaaeb85c6b43e"
   license "Apache-2.0"
   head "https://github.com/apache/camel-k.git"
 
@@ -13,14 +13,21 @@ class Kamel < Formula
   end
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "c52e7f5e007e12e4c191db92ed779e7aded3e09a42284871a50c52fec108c311"
-    sha256 cellar: :any_skip_relocation, big_sur:       "5e07672ad25869206e8d43c1959426411b6f1a410e44e4e2279271e07c542684"
-    sha256 cellar: :any_skip_relocation, catalina:      "982c51e01f8e5bf9fb867c5107428ffe3ef000400c1d9cdc9c5710d50d4f194d"
-    sha256 cellar: :any_skip_relocation, mojave:        "356cffa21363864841e10ef0073c6a6ce25d215a7cc728d246e0953c896dfebf"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "747cf904af90425eb6dffff7a7f6cd9f9e1ac37b777a892eae3cbc3a73c411ad"
+    sha256 cellar: :any_skip_relocation, big_sur:       "4e8c1c913c2a70db9a9714189f380124d95dc1627f78c4736c4df13d3ba5a6d1"
+    sha256 cellar: :any_skip_relocation, catalina:      "18d3e4401efd0ffc1465fc3bb6337f12342499c350a44d49aa900039000e8562"
+    sha256 cellar: :any_skip_relocation, mojave:        "70be9a875b178084c9f7af37152cd83b20d2f2208fde8ac74582840dd54b0ede"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "cd58835f1a6fd97db3bd9b635495bfd8808ded1aa67fe4312a3fb709da2b9333"
   end
 
   depends_on "go" => :build
   depends_on "openjdk@11" => :build
+
+  # remove in next release
+  patch do
+    url "https://github.com/apache/camel-k/commit/5385f35485e95197be33cd3684392186fe49db31.patch?full_index=1"
+    sha256 "0ab648244ed6e342ac1a1d6ecc878d78e8d0b64b14d872346d29f897e56e6bd1"
+  end
 
   def install
     ENV["JAVA_HOME"] = Language::Java.java_home("11")
@@ -39,7 +46,7 @@ class Kamel < Formula
     assert_match "Apache Camel K is a lightweight", run_output
 
     help_output = shell_output("echo $(#{bin}/kamel help 2>&1)")
-    assert_match "Error: cannot get command client: invalid configuration", help_output.chomp
+    assert_match "kamel [command] --help", help_output.chomp
 
     get_output = shell_output("echo $(#{bin}/kamel get 2>&1)")
     assert_match "Error: cannot get command client: invalid configuration", get_output

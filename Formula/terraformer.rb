@@ -1,28 +1,23 @@
 class Terraformer < Formula
   desc "CLI tool to generate terraform files from existing infrastructure"
   homepage "https://github.com/GoogleCloudPlatform/terraformer"
-  url "https://github.com/GoogleCloudPlatform/terraformer/archive/0.8.11.tar.gz"
-  sha256 "d3f3710d15fcb75cda82d1c3d51e7ce37eeb059bc22351449d84f3b6d3fa2e43"
+  url "https://github.com/GoogleCloudPlatform/terraformer/archive/0.8.16.tar.gz"
+  sha256 "22884dc28a169be3e286486cd9d9a3d719fe71ae1965d2cc27e29aec4adadb71"
   license "Apache-2.0"
-  head "https://github.com/GoogleCloudPlatform/terraformer.git"
+  head "https://github.com/GoogleCloudPlatform/terraformer.git", branch: "master"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "6aec1b6c2f23f3995540e6b5197326ff358c160c82fc68d633ae83d48085faec"
-    sha256 cellar: :any_skip_relocation, big_sur:       "52b907bef8df487d250ba1b697ec6098820df904287987f521bf24ad38bd98e5"
-    sha256 cellar: :any_skip_relocation, catalina:      "9defda3f8ceeea4e50757a3c4aea1d1f0108152adace35a892c02b018fb247b3"
-    sha256 cellar: :any_skip_relocation, mojave:        "2aeb38b63b0c934830b01529c480d8981746ca35c6a7be0a9f5cc5928107f77f"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "9f072b8f1edc429d4fd4460d30a5c44452155990dfd928547f1cea42504a32f2"
+    sha256 cellar: :any_skip_relocation, big_sur:       "fb97d2eed304edc133a91eff53f87e4cec35bac1ccc7814b7746eca7d07ba708"
+    sha256 cellar: :any_skip_relocation, catalina:      "6a192d733c5b7dba65944589cc20d2a66b8901146e516abd844fe6eb2ad532e4"
+    sha256 cellar: :any_skip_relocation, mojave:        "d7b08f233a6bb41166601731200ca692df8e1534d937a4f484ed9a0a7d8a706e"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "c9e4e4c61cfa1619c4301e8355397b7da3c82991339775cb1156c55bfce9eacd"
   end
 
   depends_on "go" => :build
 
-  # remove in next release
-  patch do
-    url "https://github.com/chenrui333/terraformer/commit/106ab51.patch?full_index=1"
-    sha256 "a222bcee9f1532f6adc75715f83baa9cc4a032cfbc258afca953dfede4ee8649"
-  end
-
   def install
-    system "go", "build", *std_go_args, "-ldflags", "-s -w"
+    system "go", "build", *std_go_args(ldflags: "-s -w")
   end
 
   test do

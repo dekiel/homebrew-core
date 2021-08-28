@@ -1,9 +1,10 @@
 class Mkvtoolnix < Formula
   desc "Matroska media files manipulation tools"
   homepage "https://mkvtoolnix.download/"
-  url "https://mkvtoolnix.download/sources/mkvtoolnix-53.0.0.tar.xz"
-  sha256 "8dfd66278c81e6f1df0fd84aad30ce2b4cf7a2ad4336924f01f1879f9d1e4cd6"
+  url "https://mkvtoolnix.download/sources/mkvtoolnix-60.0.0.tar.xz"
+  sha256 "a12437790440589721e7cd8b476cb832ade6ad9f1759533ee8fe91bd9cfa74c4"
   license "GPL-2.0-or-later"
+  revision 1
 
   livecheck do
     url "https://mkvtoolnix.download/sources/"
@@ -11,10 +12,9 @@ class Mkvtoolnix < Formula
   end
 
   bottle do
-    sha256 cellar: :any, arm64_big_sur: "3a9e5699a395a9e2a5823885fa3337c74dccb13b545195a1010075a7587e5a03"
-    sha256 cellar: :any, big_sur:       "712880637df3730d2c49390de8fc3be9053b2e093a06e8d5dcd43ba7c1d79547"
-    sha256 cellar: :any, catalina:      "8139fcc6b846f6f4b317bd4ac393a3ef15e72446a0f6a0f12b65daddff04cd76"
-    sha256 cellar: :any, mojave:        "a633f4d8d7438fdc876fc2dfba0ef20037d43391e63e509df833d34ef169d812"
+    sha256 cellar: :any, arm64_big_sur: "36d50cc64a0586c1a68e6987415be8a510ca868ca2d828e3b9591e69f5b57504"
+    sha256 cellar: :any, big_sur:       "8e62bdbcd4799db726a1b41fe935bde145acfa0ba81288fb410ae0b987f22e9b"
+    sha256 cellar: :any, catalina:      "cbeab7bd88f4c8f986dcb42768d2165b9cd888897ca422e3d83d59c9fca07416"
   end
 
   head do
@@ -30,28 +30,38 @@ class Mkvtoolnix < Formula
   depends_on "flac"
   depends_on "fmt"
   depends_on "gettext"
+  depends_on "gmp"
   depends_on "libebml"
-  depends_on "libmagic"
   depends_on "libmatroska"
   depends_on "libogg"
   depends_on "libvorbis"
-  depends_on macos: :mojave # C++17
-  depends_on "pcre2"
+  # https://mkvtoolnix.download/downloads.html#macosx
+  depends_on macos: :catalina # C++17
+  depends_on "nlohmann-json"
   depends_on "pugixml"
+  depends_on "qt"
+  depends_on "utf8cpp"
 
   uses_from_macos "libxslt" => :build
   uses_from_macos "ruby" => :build
 
+  on_linux do
+    depends_on "gcc" => :build
+  end
+
+  fails_with gcc: "5"
+
   def install
     ENV.cxx11
 
-    features = %w[flac libebml libmagic libmatroska libogg libvorbis]
+    features = %w[flac gmp libebml libmatroska libogg libvorbis]
     extra_includes = ""
     extra_libs = ""
     features.each do |feature|
       extra_includes << "#{Formula[feature].opt_include};"
       extra_libs << "#{Formula[feature].opt_lib};"
     end
+    extra_includes << "#{Formula["utf8cpp"].opt_include}/utf8cpp;"
     extra_includes.chop!
     extra_libs.chop!
 
@@ -62,7 +72,7 @@ class Mkvtoolnix < Formula
                           "--with-docbook-xsl-root=#{Formula["docbook-xsl"].opt_prefix}/docbook-xsl",
                           "--with-extra-includes=#{extra_includes}",
                           "--with-extra-libs=#{extra_libs}",
-                          "--disable-qt"
+                          "--disable-gui"
     system "rake", "-j#{ENV.make_jobs}"
     system "rake", "install"
   end

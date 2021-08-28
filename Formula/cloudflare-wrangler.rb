@@ -1,15 +1,15 @@
 class CloudflareWrangler < Formula
   desc "CLI tool for Cloudflare Workers"
   homepage "https://github.com/cloudflare/wrangler"
-  url "https://github.com/cloudflare/wrangler/archive/v1.15.0.tar.gz"
-  sha256 "a48a5eed79f0362fff7c9dd8806d010d60054a3121ef3546ac864a041dfb80f9"
+  url "https://github.com/cloudflare/wrangler/archive/v1.19.0.tar.gz"
+  sha256 "6204213cd4003ef102251437341e103683c0b5be9bb2ab94d095d196e8da7725"
   license any_of: ["Apache-2.0", "MIT"]
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_big_sur: "080bfcbb62139edbc6f8f51e2521de0fe3885ac8fea836358ec1712f1ebd16fe"
-    sha256 cellar: :any_skip_relocation, big_sur:       "cb0f88203f8297f805b3cb566f821078e108442e81153f6eca44ab54b88820b9"
-    sha256 cellar: :any_skip_relocation, catalina:      "69917d50985d68f4c90f7e6e56faa5d0441c17b6b312073743707d0977ced17c"
-    sha256 cellar: :any_skip_relocation, mojave:        "1d090bfd3d8ed2c1dd9ed90af24666af587e16c81a3b62a0a9e93a6fe383a0f2"
+    sha256 cellar: :any_skip_relocation, arm64_big_sur: "34ba67a480cb40fb2a049f217cb1d81532dc656a790372bdf7f79d1954a73af7"
+    sha256 cellar: :any_skip_relocation, big_sur:       "96c15d7abe5ab134a8b66e5e4155960a11a8cd95ea9c33cf645af467db4c93f4"
+    sha256 cellar: :any_skip_relocation, catalina:      "006bd2aea86fdf7e9689520d39dc44abb41ecba6ca3774c31dbaa6d29bebf391"
+    sha256 cellar: :any_skip_relocation, mojave:        "c13f4182d62b920e4cb169be43cfc941bc0fcb3751a2d0c1d884f37e654854d9"
   end
 
   depends_on "rust" => :build

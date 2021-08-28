@@ -1,11 +1,10 @@
 class Imagemagick < Formula
   desc "Tools and libraries to manipulate images in many formats"
   homepage "https://www.imagemagick.org/"
-  url "https://dl.bintray.com/homebrew/mirror/ImageMagick-7.0.11-3.tar.xz"
-  mirror "https://www.imagemagick.org/download/releases/ImageMagick-7.0.11-3.tar.xz"
-  sha256 "3a970d1afd5e8fa08754ee8e097af4b7b088e6cd17cf55f1d3a9999d20018bc5"
+  url "https://www.imagemagick.org/download/releases/ImageMagick-7.1.0-5.tar.xz"
+  sha256 "faeae351785447834c44850f2d3d80bbb0fed500228373098fce553a0df1ac6b"
   license "ImageMagick"
-  head "https://github.com/ImageMagick/ImageMagick.git"
+  head "https://github.com/ImageMagick/ImageMagick.git", branch: "main"
 
   livecheck do
     url "https://download.imagemagick.org/ImageMagick/download/"
@@ -13,10 +12,11 @@ class Imagemagick < Formula
   end
 
   bottle do
-    sha256 arm64_big_sur: "420edef75429398019172ddf4ef05c46f9b06225f92af054efe9d195884359a4"
-    sha256 big_sur:       "51de4599cf631810750c36c39cbec1251782096bcb6399a53ab8beda88b65260"
-    sha256 catalina:      "d3cbc778196046e2f833b0746e085aae58d4e99d0b5e466da08c8d4738c3421f"
-    sha256 mojave:        "39707051a2c8f5563f3291833938a7a23766bb96c347d304f1b6dc344a4a5d00"
+    sha256 arm64_big_sur: "696b3245c4c9ecaa955f6936d581ebdaef6ffe4ebab27cf04f777219a00ebc66"
+    sha256 big_sur:       "5a364172b976b9433cc568e8c790e8994354c06cb004a2f8de55f19d3e78ad1e"
+    sha256 catalina:      "f5e65ce29dd05ecf65d84f7d35007a55f149d20b480a33510a9937d4927e9110"
+    sha256 mojave:        "cb81be9bd016dde2576e1bc4395c40e8c96b13b511e73835e3c086021e40053f"
+    sha256 x86_64_linux:  "4c66926c06378888fdd416a341271f2c0fa75b18ff9f353da3bf33d07cd6b9e3"
   end
 
   depends_on "pkg-config" => :build
@@ -49,31 +49,31 @@ class Imagemagick < Formula
     # Avoid references to shim
     inreplace Dir["**/*-config.in"], "@PKG_CONFIG@", Formula["pkg-config"].opt_bin/"pkg-config"
 
-    args = %W[
-      --enable-osx-universal-binary=no
-      --prefix=#{prefix}
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --disable-opencl
-      --enable-shared
-      --enable-static
-      --with-freetype=yes
-      --with-gvc=no
-      --with-modules
-      --with-openjp2
-      --with-openexr
-      --with-webp=yes
-      --with-heic=yes
-      --with-gslib
-      --with-gs-font-dir=#{HOMEBREW_PREFIX}/share/ghostscript/fonts
-      --with-lqr
-      --without-fftw
-      --without-pango
-      --without-wmf
-      --enable-openmp
-      ac_cv_prog_c_openmp=-Xpreprocessor\ -fopenmp
-      ac_cv_prog_cxx_openmp=-Xpreprocessor\ -fopenmp
-      LDFLAGS=-lomp\ -lz
+    args = [
+      "--enable-osx-universal-binary=no",
+      "--prefix=#{prefix}",
+      "--disable-dependency-tracking",
+      "--disable-silent-rules",
+      "--disable-opencl",
+      "--enable-shared",
+      "--enable-static",
+      "--with-freetype=yes",
+      "--with-gvc=no",
+      "--with-modules",
+      "--with-openjp2",
+      "--with-openexr",
+      "--with-webp=yes",
+      "--with-heic=yes",
+      "--with-gslib",
+      "--with-gs-font-dir=#{HOMEBREW_PREFIX}/share/ghostscript/fonts",
+      "--with-lqr",
+      "--without-fftw",
+      "--without-pango",
+      "--without-wmf",
+      "--enable-openmp",
+      "ac_cv_prog_c_openmp=-Xpreprocessor -fopenmp",
+      "ac_cv_prog_cxx_openmp=-Xpreprocessor -fopenmp",
+      "LDFLAGS=-lomp -lz",
     ]
 
     on_macos do
